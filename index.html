@@ -11,6 +11,8 @@
         --text-color: #ffffff;
         --accent-color: #4f8ef7;
         --error-color: #ff4d4d;
+        --warning-color: #ffcc00;
+        --success-color: #00cc66;
         --input-bg: #252a36;
         --border-color: #363c4d;
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -86,11 +88,75 @@
         box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
       }
 
-      .error-message {
-        color: var(--error-color);
-        font-size: 0.8rem;
-        margin-top: 0.4rem;
-        min-height: 1.2rem;
+      .error-message.warning {
+        color: var(--warning-color);
+      }
+
+      .error-message.success {
+        color: var(--success-color);
+      }
+
+      .rationale-container {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0.5rem;
+        border: 1px dashed var(--border-color);
+      }
+
+      .rationale-container.visible {
+        display: block;
+      }
+
+      .rationale-textarea {
+        width: 100%;
+        min-height: 80px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.4rem;
+        color: white;
+        padding: 0.5rem;
+        font-family: inherit;
+        resize: vertical;
+      }
+
+      .rationale-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        margin-top: 0.3rem;
+        color: #888;
+      }
+
+      .keyword-hint {
+        font-style: italic;
+        margin-top: 0.3rem;
+        font-size: 0.75rem;
+        color: #888;
+      }
+
+      .exception-status-banner {
+        display: none;
+        background: var(--error-color);
+        color: white;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .exception-status-banner.visible {
+        display: block;
+      }
+
+      .exception-counter {
+        text-align: right;
+        font-size: 0.85rem;
+        color: #a0a0a0;
+        margin-bottom: 0.5rem;
       }
 
       .exception-toggle {
@@ -152,6 +218,12 @@
       <header>
         <h1>Candidate Details</h1>
       </header>
+      <div id="managerBanner" class="exception-status-banner">
+        ⚠️ Flagged for Manager Review — too many exceptions on this entry
+      </div>
+      <div class="exception-counter" id="exceptionCounter">
+        Exceptions Granted: 0 / 2
+      </div>
       <div class="card">
         <form id="admitForm">
           <div id="fieldsContainer"></div>
@@ -181,21 +253,100 @@
       };
 
       const validationState = {};
+      const exceptionRationaleState = {};
+      let exceptionsGrantedCount = 0;
+
+      function updateExceptionUI() {
+        const counter = document.getElementById('exceptionCounter');
+        const banner = document.getElementById('managerBanner');
+        
+        exceptionsGrantedCount = Object.values(exceptionRationaleState).filter(r => r && r.valid).length;
+        
+        counter.textContent = `Exceptions Granted: ${exceptionsGrantedCount} / ${ADMIT_GUARD_CONFIG.systemRules.maxExceptionsBeforeFlag}`;
+        
+        if (exceptionsGrantedCount > ADMIT_GUARD_CONFIG.systemRules.maxExceptionsBeforeFlag) {
+          banner.classList.add('visible');
+        } else {
+          banner.classList.remove('visible');
+        }
+      }
 
       function checkFormValidity() {
         const submitBtn = document.querySelector('.submit-btn');
-        const hasErrors = Object.values(validationState).some(error => error !== null);
         
-        // Special case for interviewStatus: Rejected
-        const interviewStatus = document.getElementById('interviewStatus')?.value;
-        const isRejected = interviewStatus === 'Rejected';
+        // Check strict errors
+        const hasStrictErrors = ADMIT_GUARD_CONFIG.fields
+          .filter(f => f.ruleType === 'strict')
+          .some(f => validationState[f.id] !== null);
         
-        // Also check if required strict fields are empty
+        // Check soft errors without granted exceptions
+        const hasSoftErrorsWithoutException = ADMIT_GUARD_CONFIG.fields
+          .filter(f => f.ruleType === 'soft')
+          .some(f => {
+            const isViolated = validationState[f.id] !== null;
+            const hasValidRationale = exceptionRationaleState[f.id]?.valid;
+            return isViolated && !hasValidRationale;
+          });
+
+        // Check if required strict fields are empty
         const strictFieldsEmpty = ADMIT_GUARD_CONFIG.fields
           .filter(f => f.ruleType === 'strict')
           .some(f => !document.getElementById(f.id).value);
 
-        submitBtn.disabled = hasErrors || isRejected || strictFieldsEmpty;
+        // Special case for interviewStatus: Rejected
+        const interviewStatus = document.getElementById('interviewStatus')?.value;
+        const isRejected = interviewStatus === 'Rejected';
+
+        submitBtn.disabled = hasStrictErrors || hasSoftErrorsWithoutException || strictFieldsEmpty || isRejected;
+        
+        updateExceptionUI();
+      }
+
+      function validateRationale(fieldId) {
+        const textarea = document.getElementById(`rationale-${fieldId}`);
+        const charCount = document.getElementById(`charCount-${fieldId}`);
+        const value = textarea.value.trim();
+        const keywords = ["approved by", "special case", "documentation pending", "waiver granted"];
+        
+        const hasMinLength = value.length >= 30;
+        const hasKeyword = keywords.some(k => value.toLowerCase().includes(k));
+        
+        charCount.textContent = `${value.length} / 30 chars`;
+        charCount.style.color = hasMinLength ? 'var(--success-color)' : '#888';
+
+        const isValid = hasMinLength && hasKeyword;
+        
+        exceptionRationaleState[fieldId] = {
+          text: value,
+          valid: isValid
+        };
+
+        const errorDiv = document.getElementById(`error-${fieldId}`);
+        if (isValid) {
+          errorDiv.textContent = "Exception Granted with valid rationale.";
+          errorDiv.className = "error-message success";
+        } else {
+          // Re-run field validation to show the warning again
+          validate(fieldId);
+        }
+
+        checkFormValidity();
+      }
+
+      function toggleExceptionRationale(fieldId) {
+        const container = document.getElementById(`rationaleContainer-${fieldId}`);
+        container.classList.toggle('visible');
+      }
+
+      function calculateAge(dobString) {
+        const dob = new Date(dobString);
+        const programStart = new Date(ADMIT_GUARD_CONFIG.programStartDate);
+        let age = programStart.getFullYear() - dob.getFullYear();
+        const m = programStart.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && programStart.getDate() < dob.getDate())) {
+          age--;
+        }
+        return age;
       }
 
       function validate(fieldId) {
@@ -204,10 +355,13 @@
 
         const input = document.getElementById(fieldId);
         const errorDiv = document.getElementById(`error-${fieldId}`);
+        const toggle = document.getElementById(`toggle-${fieldId}`);
         const value = input.value.trim();
         let errorMessage = null;
+        let isWarning = false;
 
         if (field.ruleType === 'strict') {
+          errorDiv.className = "error-message";
           switch (fieldId) {
             case 'fullName':
               if (!value) errorMessage = "Full Name cannot be blank.";
@@ -245,14 +399,66 @@
               if (!value) errorMessage = "Please select a score type.";
               break;
           }
+        } else if (field.ruleType === 'soft') {
+          isWarning = true;
+          errorDiv.className = "error-message warning";
+          
+          if (value) {
+            switch (fieldId) {
+              case 'dob':
+                const age = calculateAge(value);
+                if (age < 18 || age > 35) {
+                  errorMessage = `Age must be between 18 and 35 on ${ADMIT_GUARD_CONFIG.programStartDate}. Current age calculated: ${age}.`;
+                }
+                break;
+              case 'graduationYear':
+                const year = parseInt(value);
+                if (year < 2015 || year > 2025) {
+                  errorMessage = "Graduation Year must be between 2015 and 2025 inclusive.";
+                }
+                break;
+              case 'score':
+                const scoreType = document.getElementById('scoreType').value;
+                const scoreVal = parseFloat(value);
+                if (scoreType === 'Percentage' && scoreVal < 60) {
+                  errorMessage = "Percentage must be at least 60%.";
+                } else if (scoreType === 'CGPA' && scoreVal < 6.0) {
+                  errorMessage = "CGPA must be at least 6.0.";
+                }
+                break;
+              case 'screeningScore':
+                const sScore = parseInt(value);
+                if (sScore < 40) {
+                  errorMessage = "Screening Test Score must be at least 40.";
+                }
+                break;
+            }
+          }
         }
 
-        errorDiv.textContent = errorMessage || "";
+        // If it's a soft rule violation and exception is already granted, show success
+        if (field.ruleType === 'soft' && errorMessage && exceptionRationaleState[fieldId]?.valid) {
+          errorDiv.textContent = "Exception Granted with valid rationale.";
+          errorDiv.className = "error-message success";
+          if (toggle) toggle.classList.remove('visible');
+        } else {
+          errorDiv.textContent = errorMessage || "";
+          if (isWarning && errorMessage) {
+            errorDiv.className = "error-message warning";
+            if (toggle) toggle.classList.add('visible');
+          } else {
+            if (toggle) toggle.classList.remove('visible');
+          }
+        }
+
         validationState[fieldId] = errorMessage;
         
-        // Cross-field validation: if interviewStatus changed, re-validate offerLetterSent
+        // Cross-field validation
         if (fieldId === 'interviewStatus') {
           validate('offerLetterSent');
+        }
+        if (fieldId === 'scoreType') {
+          validate('score');
         }
 
         checkFormValidity();
@@ -295,9 +501,7 @@
           input.id = field.id;
           input.name = field.id;
           
-          // Add blur event listener for validation
           input.addEventListener('blur', () => validate(field.id));
-          // Also add input listener to clear errors immediately if corrected
           input.addEventListener('input', () => {
             if (validationState[field.id]) {
               validate(field.id);
@@ -319,12 +523,43 @@
             toggle.className = 'exception-toggle';
             toggle.id = `toggle-${field.id}`;
             toggle.textContent = 'Grant Exception';
+            toggle.onclick = () => toggleExceptionRationale(field.id);
             group.appendChild(toggle);
+
+            // Rationale Container
+            const rationaleContainer = document.createElement('div');
+            rationaleContainer.className = 'rationale-container';
+            rationaleContainer.id = `rationaleContainer-${field.id}`;
+            
+            const rLabel = document.createElement('label');
+            rLabel.textContent = "Exception Rationale (required)";
+            rationaleContainer.appendChild(rLabel);
+
+            const textarea = document.createElement('textarea');
+            textarea.className = 'rationale-textarea';
+            textarea.id = `rationale-${field.id}`;
+            textarea.placeholder = "Explain why this exception should be granted...";
+            textarea.oninput = () => validateRationale(field.id);
+            rationaleContainer.appendChild(textarea);
+
+            const meta = document.createElement('div');
+            meta.className = 'rationale-meta';
+            const charCount = document.createElement('span');
+            charCount.id = `charCount-${field.id}`;
+            charCount.textContent = "0 / 30 chars";
+            meta.appendChild(charCount);
+            rationaleContainer.appendChild(meta);
+
+            const hint = document.createElement('div');
+            hint.className = 'keyword-hint';
+            hint.textContent = "Must include one of: 'approved by', 'special case', 'documentation pending', 'waiver granted'";
+            rationaleContainer.appendChild(hint);
+
+            group.appendChild(rationaleContainer);
           }
 
           container.appendChild(group);
           
-          // Initialize validation state
           if (field.ruleType === 'strict') {
             validationState[field.id] = null;
           }
