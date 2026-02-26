@@ -180,6 +180,84 @@
         systemRules: { maxExceptionsBeforeFlag: 2 }
       };
 
+      const validationState = {};
+
+      function checkFormValidity() {
+        const submitBtn = document.querySelector('.submit-btn');
+        const hasErrors = Object.values(validationState).some(error => error !== null);
+        
+        // Special case for interviewStatus: Rejected
+        const interviewStatus = document.getElementById('interviewStatus')?.value;
+        const isRejected = interviewStatus === 'Rejected';
+        
+        // Also check if required strict fields are empty
+        const strictFieldsEmpty = ADMIT_GUARD_CONFIG.fields
+          .filter(f => f.ruleType === 'strict')
+          .some(f => !document.getElementById(f.id).value);
+
+        submitBtn.disabled = hasErrors || isRejected || strictFieldsEmpty;
+      }
+
+      function validate(fieldId) {
+        const field = ADMIT_GUARD_CONFIG.fields.find(f => f.id === fieldId);
+        if (!field) return;
+
+        const input = document.getElementById(fieldId);
+        const errorDiv = document.getElementById(`error-${fieldId}`);
+        const value = input.value.trim();
+        let errorMessage = null;
+
+        if (field.ruleType === 'strict') {
+          switch (fieldId) {
+            case 'fullName':
+              if (!value) errorMessage = "Full Name cannot be blank.";
+              else if (value.length < 2) errorMessage = "Full Name must be at least 2 characters.";
+              else if (/\d/.test(value)) errorMessage = "Full Name cannot contain numbers.";
+              break;
+            case 'email':
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!value) errorMessage = "Email Address cannot be blank.";
+              else if (!emailRegex.test(value)) errorMessage = "Please enter a valid email address.";
+              break;
+            case 'phone':
+              if (!value) errorMessage = "Phone Number cannot be blank.";
+              else if (!/^[6-9]\d{9}$/.test(value)) errorMessage = "Phone Number must be exactly 10 digits and start with 6, 7, 8, or 9.";
+              break;
+            case 'qualification':
+              if (!value) errorMessage = "Please select a qualification from the list.";
+              break;
+            case 'interviewStatus':
+              if (!value) errorMessage = "Please select an interview status.";
+              else if (value === 'Rejected') errorMessage = "Candidate rejected. Submission is blocked.";
+              break;
+            case 'aadhaar':
+              if (!value) errorMessage = "Aadhaar Number cannot be blank.";
+              else if (!/^\d{12}$/.test(value)) errorMessage = "Aadhaar Number must be exactly 12 digits and contain no letters.";
+              break;
+            case 'offerLetterSent':
+              const interviewStatusValue = document.getElementById('interviewStatus').value;
+              if (!value) errorMessage = "Please specify if the offer letter was sent.";
+              else if (value === 'Yes' && interviewStatusValue !== 'Cleared' && interviewStatusValue !== 'Waitlisted') {
+                errorMessage = "Offer letter cannot be sent unless interview status is Cleared or Waitlisted.";
+              }
+              break;
+            case 'scoreType':
+              if (!value) errorMessage = "Please select a score type.";
+              break;
+          }
+        }
+
+        errorDiv.textContent = errorMessage || "";
+        validationState[fieldId] = errorMessage;
+        
+        // Cross-field validation: if interviewStatus changed, re-validate offerLetterSent
+        if (fieldId === 'interviewStatus') {
+          validate('offerLetterSent');
+        }
+
+        checkFormValidity();
+      }
+
       function generateForm() {
         const container = document.getElementById('fieldsContainer');
         
@@ -216,6 +294,18 @@
 
           input.id = field.id;
           input.name = field.id;
+          
+          // Add blur event listener for validation
+          input.addEventListener('blur', () => validate(field.id));
+          // Also add input listener to clear errors immediately if corrected
+          input.addEventListener('input', () => {
+            if (validationState[field.id]) {
+              validate(field.id);
+            } else {
+              checkFormValidity();
+            }
+          });
+
           group.appendChild(input);
 
           const errorDiv = document.createElement('div');
@@ -229,22 +319,26 @@
             toggle.className = 'exception-toggle';
             toggle.id = `toggle-${field.id}`;
             toggle.textContent = 'Grant Exception';
-            // Note: Requirement says "hidden" by default. 
-            // I've used CSS 'display: none' for .exception-toggle.
             group.appendChild(toggle);
           }
 
           container.appendChild(group);
+          
+          // Initialize validation state
+          if (field.ruleType === 'strict') {
+            validationState[field.id] = null;
+          }
         });
+        
+        checkFormValidity();
       }
 
       // Initialize form on load
       document.addEventListener('DOMContentLoaded', generateForm);
 
-      // Prevent default submit for now as per "No validation logic yet"
       document.getElementById('admitForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        console.log('Form submitted (no validation yet)');
+        alert('Application submitted successfully!');
       });
     </script>
   </body>
