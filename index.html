@@ -15,7 +15,17 @@
         --success-color: #00cc66;
         --input-bg: #252a36;
         --border-color: #363c4d;
+        --label-color: #a0a0a0;
         --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      body.light-mode {
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --text-color: #0f172a;
+        --input-bg: #ffffff;
+        --border-color: #e2e8f0;
+        --label-color: #64748b;
       }
 
       * {
@@ -68,7 +78,7 @@
         margin-bottom: 0.5rem;
         font-size: 0.9rem;
         font-weight: 500;
-        color: #a0a0a0;
+        color: var(--label-color);
       }
 
       input, select {
@@ -155,8 +165,411 @@
       .exception-counter {
         text-align: right;
         font-size: 0.85rem;
-        color: #a0a0a0;
+        color: var(--label-color);
         margin-bottom: 0.5rem;
+      }
+
+      /* Theme Toggle Styling */
+      .theme-toggle {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        transition: all 0.2s;
+      }
+
+      .theme-toggle:hover {
+        transform: scale(1.1);
+        border-color: var(--accent-color);
+      }
+
+      /* Dashboard Styling */
+      #dashboardScreen {
+        display: none;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: var(--label-color);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .chart-container {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+      }
+
+      .chart-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 250px;
+        gap: 1rem;
+        padding-top: 2rem;
+      }
+
+      .bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+      }
+
+      .bar {
+        width: 100%;
+        max-width: 40px;
+        background: var(--accent-color);
+        border-radius: 4px 4px 0 0;
+        position: relative;
+        transition: height 0.5s ease-out;
+      }
+
+      .bar-value {
+        position: absolute;
+        top: -1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .bar-label {
+        margin-top: 0.75rem;
+        font-size: 0.7rem;
+        color: var(--label-color);
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      /* Audit Log Export Button */
+      .audit-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+      }
+
+      .export-btn {
+        background: transparent;
+        border: 1px solid var(--success-color);
+        color: var(--success-color);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .export-btn:hover {
+        background: var(--success-color);
+        color: white;
+      }
+
+      /* Success Screen Styles */
+      #successScreen {
+        display: none;
+      }
+
+      .success-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .checkmark-circle {
+        width: 80px;
+        height: 80px;
+        background: var(--success-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 3rem;
+        color: white;
+      }
+
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+      }
+
+      .summary-table th, .summary-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .summary-table th {
+        color: #a0a0a0;
+        font-weight: 500;
+        width: 40%;
+      }
+
+      .exceptions-summary {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: rgba(255, 204, 0, 0.05);
+        border-radius: 0.5rem;
+        border: 1px solid rgba(255, 204, 0, 0.2);
+      }
+
+      .exception-item {
+        margin-bottom: 1rem;
+      }
+
+      .exception-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .exception-field-name {
+        color: var(--warning-color);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      .exception-rationale-text {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: #ccc;
+      }
+
+      .reset-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: transparent;
+        color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .reset-btn:hover {
+        background: var(--accent-color);
+        color: white;
+      }
+
+      /* Tabs Styling */
+      .tabs-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: none;
+        color: #888;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        color: var(--text-color);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .tab-btn.active {
+        color: var(--accent-color);
+        background: rgba(79, 142, 247, 0.1);
+      }
+
+      /* Audit Log Styling */
+      #auditLogScreen {
+        display: none;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .summary-strip {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--card-bg);
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        font-size: 0.9rem;
+      }
+
+      .summary-item span {
+        font-weight: 700;
+        color: var(--accent-color);
+      }
+
+      .filter-bar {
+        margin-bottom: 1.5rem;
+      }
+
+      .filter-bar input {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .audit-table-container {
+        overflow-x: auto;
+      }
+
+      .audit-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+      }
+
+      .audit-table th {
+        text-align: left;
+        padding: 1rem;
+        color: #a0a0a0;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .audit-row {
+        background: var(--card-bg);
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+
+      .audit-row:hover {
+        transform: translateY(-2px);
+        background: #252a36;
+      }
+
+      .audit-row td {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .audit-row td:first-child {
+        border-left: 1px solid var(--border-color);
+        border-top-left-radius: 0.5rem;
+        border-bottom-left-radius: 0.5rem;
+      }
+
+      .audit-row td:last-child {
+        border-right: 1px solid var(--border-color);
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+      }
+
+      .audit-row.has-exceptions td:first-child {
+        border-left: 4px solid var(--warning-color);
+      }
+
+      .audit-row.flagged td:first-child {
+        border-left: 4px solid var(--error-color);
+      }
+
+      .manager-badge {
+        background: var(--error-color);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .expandable-content {
+        display: none;
+        background: #1a1d26;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        margin-top: -0.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .expandable-content.visible {
+        display: block;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .detail-item label {
+        font-size: 0.75rem;
+        margin-bottom: 0.1rem;
+      }
+
+      .detail-item p {
+        font-size: 0.9rem;
       }
 
       .exception-toggle {
@@ -214,21 +627,122 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+      <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <div class="container" id="mainContainer">
       <header>
-        <h1>Candidate Details</h1>
+        <h1>AdmitGuard</h1>
       </header>
-      <div id="managerBanner" class="exception-status-banner">
-        ⚠️ Flagged for Manager Review — too many exceptions on this entry
+
+      <div class="tabs-container">
+        <button class="tab-btn active" id="tab-new" onclick="switchTab('new')">New Entry</button>
+        <button class="tab-btn" id="tab-audit" onclick="switchTab('audit')">Audit Log</button>
+        <button class="tab-btn" id="tab-dashboard" onclick="switchTab('dashboard')">Dashboard</button>
       </div>
-      <div class="exception-counter" id="exceptionCounter">
-        Exceptions Granted: 0 / 2
+
+      <div id="newEntryView">
+        <div id="formScreen">
+          <div id="managerBanner" class="exception-status-banner">
+            ⚠️ Flagged for Manager Review — too many exceptions on this entry
+          </div>
+          <div class="exception-counter" id="exceptionCounter">
+            Exceptions Granted: 0 / 2
+          </div>
+          <div class="card">
+            <form id="admitForm">
+              <div id="fieldsContainer"></div>
+              <button type="submit" class="submit-btn">Submit Application</button>
+            </form>
+          </div>
+        </div>
+
+        <div id="successScreen">
+          <div class="success-header">
+            <div class="checkmark-circle">✓</div>
+            <h2>Candidate Submitted Successfully</h2>
+          </div>
+          
+          <div id="successManagerBanner" class="exception-status-banner visible" style="display: none;">
+            ⚠️ Flagged for Manager Review — too many exceptions on this entry
+          </div>
+
+          <div class="card">
+            <table class="summary-table" id="summaryTable">
+              <!-- Summary rows will be injected here -->
+            </table>
+
+            <div id="exceptionsSummaryContainer" style="display: none;">
+              <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--warning-color);">Granted Exceptions</h3>
+              <div class="exceptions-summary" id="exceptionsList">
+                <!-- Exception items will be injected here -->
+              </div>
+            </div>
+
+            <button class="reset-btn" onclick="resetForm()" style="margin-top: 2rem;">Add Another Candidate</button>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <form id="admitForm">
-          <div id="fieldsContainer"></div>
-          <button type="submit" class="submit-btn">Submit Application</button>
-        </form>
+
+      <div id="auditLogScreen">
+        <div class="summary-strip" id="auditSummary">
+          <div class="summary-item">Total: <span id="stat-total">0</span></div>
+          <div class="summary-item">With Exceptions: <span id="stat-exceptions">0</span></div>
+          <div class="summary-item">Flagged: <span id="stat-flagged">0</span></div>
+        </div>
+
+        <div class="audit-actions">
+          <div class="filter-bar" style="margin-bottom: 0; flex: 1;">
+            <input type="text" id="auditSearch" placeholder="Search by name or email..." oninput="renderAuditLog(this.value)">
+          </div>
+          <button class="export-btn" onclick="exportToCSV()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export CSV
+          </button>
+        </div>
+
+        <div class="audit-table-container">
+          <table class="audit-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Submitted At</th>
+                <th>Exceptions</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <!-- Audit rows injected here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="dashboardScreen">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="dash-total">0</div>
+            <div class="stat-label">Total Submissions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="dash-rate">0%</div>
+            <div class="stat-label">Exception Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="dash-flagged">0</div>
+            <div class="stat-label">Manager Flagged</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <h3 class="chart-title">Submissions by Qualification</h3>
+          <div class="bar-chart" id="qualificationChart">
+            <!-- Bars injected here -->
+          </div>
+        </div>
       </div>
     </div>
 
@@ -372,6 +886,13 @@
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               if (!value) errorMessage = "Email Address cannot be blank.";
               else if (!emailRegex.test(value)) errorMessage = "Please enter a valid email address.";
+              else {
+                // Email Uniqueness Check
+                const storedEmails = JSON.parse(localStorage.getItem('admitguard_emails') || '[]');
+                if (storedEmails.includes(value.toLowerCase())) {
+                  errorMessage = "This email is already registered.";
+                }
+              }
               break;
             case 'phone':
               if (!value) errorMessage = "Phone Number cannot be blank.";
@@ -568,12 +1089,339 @@
         checkFormValidity();
       }
 
+      function resetForm() {
+        // Clear state
+        ADMIT_GUARD_CONFIG.fields.forEach(field => {
+          validationState[field.id] = field.ruleType === 'strict' ? null : undefined;
+          exceptionRationaleState[field.id] = null;
+          
+          const input = document.getElementById(field.id);
+          if (input) {
+            input.value = "";
+          }
+          
+          const errorDiv = document.getElementById(`error-${field.id}`);
+          if (errorDiv) {
+            errorDiv.textContent = "";
+            errorDiv.className = "error-message";
+          }
+          
+          const toggle = document.getElementById(`toggle-${field.id}`);
+          if (toggle) {
+            toggle.classList.remove('visible');
+          }
+          
+          const rationaleContainer = document.getElementById(`rationaleContainer-${field.id}`);
+          if (rationaleContainer) {
+            rationaleContainer.classList.remove('visible');
+            const textarea = document.getElementById(`rationale-${field.id}`);
+            if (textarea) textarea.value = "";
+            const charCount = document.getElementById(`charCount-${field.id}`);
+            if (charCount) charCount.textContent = "0 / 30 chars";
+          }
+        });
+
+        // Toggle screens
+        document.getElementById('formScreen').style.display = 'block';
+        document.getElementById('successScreen').style.display = 'none';
+        
+        checkFormValidity();
+      }
+
+      function showSuccessScreen(submission) {
+        document.getElementById('formScreen').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'block';
+
+        // Manager Banner
+        const banner = document.getElementById('successManagerBanner');
+        banner.style.display = submission.flagged ? 'block' : 'none';
+
+        // Summary Table
+        const table = document.getElementById('summaryTable');
+        table.innerHTML = "";
+        ADMIT_GUARD_CONFIG.fields.forEach(field => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<th>${field.label}</th><td>${submission.data[field.id]}</td>`;
+          table.appendChild(row);
+        });
+
+        // Exceptions List
+        const exceptionsContainer = document.getElementById('exceptionsSummaryContainer');
+        const list = document.getElementById('exceptionsList');
+        list.innerHTML = "";
+        
+        const grantedExceptions = Object.entries(submission.exceptions);
+        if (grantedExceptions.length > 0) {
+          exceptionsContainer.style.display = 'block';
+          grantedExceptions.forEach(([fieldId, rationale]) => {
+            const field = ADMIT_GUARD_CONFIG.fields.find(f => f.id === fieldId);
+            const item = document.createElement('div');
+            item.className = 'exception-item';
+            item.innerHTML = `
+              <span class="exception-field-name">${field.label}</span>
+              <p class="exception-rationale-text">"${rationale}"</p>
+            `;
+            list.appendChild(item);
+          });
+        } else {
+          exceptionsContainer.style.display = 'none';
+        }
+      }
+
+      function switchTab(tab) {
+        const newEntryView = document.getElementById('newEntryView');
+        const auditLogScreen = document.getElementById('auditLogScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const tabNew = document.getElementById('tab-new');
+        const tabAudit = document.getElementById('tab-audit');
+        const tabDash = document.getElementById('tab-dashboard');
+        const container = document.getElementById('mainContainer');
+
+        // Reset all
+        newEntryView.style.display = 'none';
+        auditLogScreen.style.display = 'none';
+        dashboardScreen.style.display = 'none';
+        tabNew.classList.remove('active');
+        tabAudit.classList.remove('active');
+        tabDash.classList.remove('active');
+
+        if (tab === 'new') {
+          newEntryView.style.display = 'block';
+          tabNew.classList.add('active');
+          container.style.maxWidth = '600px';
+        } else if (tab === 'audit') {
+          auditLogScreen.style.display = 'block';
+          tabAudit.classList.add('active');
+          container.style.maxWidth = '1000px';
+          renderAuditLog();
+        } else if (tab === 'dashboard') {
+          dashboardScreen.style.display = 'block';
+          tabDash.classList.add('active');
+          container.style.maxWidth = '1000px';
+          renderDashboard();
+        }
+      }
+
+      function toggleTheme() {
+        const body = document.body;
+        const sunIcon = document.getElementById('sunIcon');
+        const moonIcon = document.getElementById('moonIcon');
+        
+        body.classList.toggle('light-mode');
+        const isLight = body.classList.contains('light-mode');
+        
+        sunIcon.style.display = isLight ? 'block' : 'none';
+        moonIcon.style.display = isLight ? 'none' : 'block';
+        
+        localStorage.setItem('admitguard_theme', isLight ? 'light' : 'dark');
+      }
+
+      function renderDashboard() {
+        const submissions = JSON.parse(localStorage.getItem('admitguard_submissions') || '[]');
+        const total = submissions.length;
+        const withExceptions = submissions.filter(s => Object.keys(s.exceptions).length > 0).length;
+        const flagged = submissions.filter(s => s.flagged).length;
+        const rate = total > 0 ? ((withExceptions / total) * 100).toFixed(1) : 0;
+
+        document.getElementById('dash-total').textContent = total;
+        document.getElementById('dash-rate').textContent = `${rate}%`;
+        document.getElementById('dash-flagged').textContent = flagged;
+
+        // Render Bar Chart
+        const chartContainer = document.getElementById('qualificationChart');
+        chartContainer.innerHTML = "";
+
+        const qualField = ADMIT_GUARD_CONFIG.fields.find(f => f.id === 'qualification');
+        const counts = {};
+        qualField.options.forEach(opt => counts[opt] = 0);
+        
+        submissions.forEach(s => {
+          const q = s.data.qualification;
+          if (counts[q] !== undefined) counts[q]++;
+        });
+
+        const maxCount = Math.max(...Object.values(counts), 1);
+
+        qualField.options.forEach(opt => {
+          const count = counts[opt];
+          const heightPercent = (count / maxCount) * 100;
+          
+          const wrapper = document.createElement('div');
+          wrapper.className = 'bar-wrapper';
+          
+          wrapper.innerHTML = `
+            <div class="bar" style="height: ${heightPercent}%">
+              <span class="bar-value">${count}</span>
+            </div>
+            <div class="bar-label" title="${opt}">${opt}</div>
+          `;
+          chartContainer.appendChild(wrapper);
+        });
+      }
+
+      function exportToCSV() {
+        const submissions = JSON.parse(localStorage.getItem('admitguard_submissions') || '[]');
+        if (submissions.length === 0) {
+          alert("No submissions to export.");
+          return;
+        }
+
+        const headers = [...ADMIT_GUARD_CONFIG.fields.map(f => f.label), "Submitted At", "Exceptions Count", "Flagged"];
+        let csvContent = headers.join(",") + "\n";
+
+        submissions.forEach(s => {
+          const row = [
+            ...ADMIT_GUARD_CONFIG.fields.map(f => `"${s.data[f.id] || ''}"`),
+            `"${s.timestamp}"`,
+            Object.keys(s.exceptions).length,
+            s.flagged ? "Yes" : "No"
+          ];
+          csvContent += row.join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const today = new Date().toISOString().split('T')[0];
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", `admitguard_export_${today}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      function toggleAuditRow(index) {
+        const content = document.getElementById(`expandable-${index}`);
+        content.classList.toggle('visible');
+      }
+
+      function renderAuditLog(filterText = "") {
+        const submissions = JSON.parse(localStorage.getItem('admitguard_submissions') || '[]');
+        const tbody = document.getElementById('auditTableBody');
+        const statTotal = document.getElementById('stat-total');
+        const statExceptions = document.getElementById('stat-exceptions');
+        const statFlagged = document.getElementById('stat-flagged');
+
+        const filtered = submissions.filter(s => {
+          const name = s.data.fullName.toLowerCase();
+          const email = s.data.email.toLowerCase();
+          const search = filterText.toLowerCase();
+          return name.includes(search) || email.includes(search);
+        });
+
+        // Update stats
+        statTotal.textContent = filtered.length;
+        statExceptions.textContent = filtered.filter(s => Object.keys(s.exceptions).length > 0).length;
+        statFlagged.textContent = filtered.filter(s => s.flagged).length;
+
+        tbody.innerHTML = "";
+        filtered.reverse().forEach((s, index) => {
+          const exceptionCount = Object.keys(s.exceptions).length;
+          const date = new Date(s.timestamp).toLocaleString();
+          
+          const row = document.createElement('tr');
+          row.className = `audit-row ${exceptionCount > 0 ? 'has-exceptions' : ''} ${s.flagged ? 'flagged' : ''}`;
+          row.onclick = () => toggleAuditRow(index);
+          
+          row.innerHTML = `
+            <td>${s.data.fullName}</td>
+            <td>${s.data.email}</td>
+            <td>${date}</td>
+            <td>${exceptionCount}</td>
+            <td>${s.flagged ? '<span class="manager-badge">Manager Review</span>' : '<span style="color: var(--success-color)">Clear</span>'}</td>
+          `;
+          tbody.appendChild(row);
+
+          // Expandable content
+          const expandRow = document.createElement('tr');
+          const expandTd = document.createElement('td');
+          expandTd.colSpan = 5;
+          expandTd.style.padding = "0";
+          expandTd.style.border = "none";
+          
+          const content = document.createElement('div');
+          content.id = `expandable-${index}`;
+          content.className = 'expandable-content';
+          
+          let detailsHtml = '<div class="details-grid">';
+          ADMIT_GUARD_CONFIG.fields.forEach(f => {
+            detailsHtml += `
+              <div class="detail-item">
+                <label>${f.label}</label>
+                <p>${s.data[f.id] || '-'}</p>
+              </div>
+            `;
+          });
+          detailsHtml += '</div>';
+
+          if (exceptionCount > 0) {
+            detailsHtml += '<h4 style="font-size: 0.85rem; color: var(--warning-color); margin-bottom: 0.5rem;">Rationales</h4>';
+            Object.entries(s.exceptions).forEach(([fieldId, rationale]) => {
+              const field = ADMIT_GUARD_CONFIG.fields.find(f => f.id === fieldId);
+              detailsHtml += `
+                <div style="margin-bottom: 0.75rem;">
+                  <span style="font-size: 0.75rem; font-weight: 600; color: #888;">${field.label}</span>
+                  <p style="font-size: 0.85rem; font-style: italic; color: #ccc;">"${rationale}"</p>
+                </div>
+              `;
+            });
+          }
+
+          content.innerHTML = detailsHtml;
+          expandTd.appendChild(content);
+          expandRow.appendChild(expandTd);
+          tbody.appendChild(expandRow);
+        });
+      }
+
       // Initialize form on load
-      document.addEventListener('DOMContentLoaded', generateForm);
+      document.addEventListener('DOMContentLoaded', () => {
+        generateForm();
+        
+        // Load theme preference
+        const savedTheme = localStorage.getItem('admitguard_theme');
+        if (savedTheme === 'light') {
+          toggleTheme();
+        }
+      });
 
       document.getElementById('admitForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        alert('Application submitted successfully!');
+        
+        // Collect data
+        const submissionData = {};
+        ADMIT_GUARD_CONFIG.fields.forEach(field => {
+          submissionData[field.id] = document.getElementById(field.id).value;
+        });
+
+        // Collect exceptions
+        const exceptions = {};
+        Object.entries(exceptionRationaleState).forEach(([fieldId, state]) => {
+          if (state && state.valid) {
+            exceptions[fieldId] = state.text;
+          }
+        });
+
+        const submission = {
+          data: submissionData,
+          exceptions: exceptions,
+          timestamp: new Date().toISOString(),
+          flagged: exceptionsGrantedCount > ADMIT_GUARD_CONFIG.systemRules.maxExceptionsBeforeFlag
+        };
+
+        // Save Submissions
+        const submissions = JSON.parse(localStorage.getItem('admitguard_submissions') || '[]');
+        submissions.push(submission);
+        localStorage.setItem('admitguard_submissions', JSON.stringify(submissions));
+
+        // Save Email for uniqueness
+        const emails = JSON.parse(localStorage.getItem('admitguard_emails') || '[]');
+        emails.push(submissionData.email.toLowerCase());
+        localStorage.setItem('admitguard_emails', JSON.stringify(emails));
+
+        showSuccessScreen(submission);
       });
     </script>
   </body>
