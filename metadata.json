@@ -1,0 +1,5 @@
+{
+  "name": "AdmitGuard",
+  "description": "A dynamic admission screening tool built with vanilla HTML, CSS, and JavaScript.",
+  "requestFramePermissions": []
+}

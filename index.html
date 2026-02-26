@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AdmitGuard - Admission Screening</title>
+    <style>
+      :root {
+        --bg-color: #0f1117;
+        --card-bg: #1a1d26;
+        --text-color: #ffffff;
+        --accent-color: #4f8ef7;
+        --error-color: #ff4d4d;
+        --input-bg: #252a36;
+        --border-color: #363c4d;
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: var(--font-sans);
+        line-height: 1.6;
+        display: flex;
+        justify-content: center;
+        padding: 2rem 1rem;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        letter-spacing: -0.02em;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border-color);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #a0a0a0;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(79, 142, 247, 0.2);
+      }
+
+      .error-message {
+        color: var(--error-color);
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+        min-height: 1.2rem;
+      }
+
+      .exception-toggle {
+        display: none; /* Hidden by default as per requirement */
+        margin-top: 0.5rem;
+        background: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.4rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .exception-toggle:hover {
+        background: var(--accent-color);
+        color: white;
+      }
+
+      .exception-toggle.visible {
+        display: inline-block;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: transform 0.1s, opacity 0.2s;
+      }
+
+      .submit-btn:hover {
+        opacity: 0.9;
+      }
+
+      .submit-btn:active {
+        transform: scale(0.98);
+      }
+
+      /* Custom select styling */
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1.2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Candidate Details</h1>
+      </header>
+      <div class="card">
+        <form id="admitForm">
+          <div id="fieldsContainer"></div>
+          <button type="submit" class="submit-btn">Submit Application</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const ADMIT_GUARD_CONFIG = {
+        programStartDate: "2025-08-01",
+        fields: [
+          { id: "fullName", label: "Full Name", type: "text", ruleType: "strict", exceptionAllowed: false },
+          { id: "email", label: "Email Address", type: "email", ruleType: "strict", exceptionAllowed: false },
+          { id: "phone", label: "Phone Number", type: "tel", ruleType: "strict", exceptionAllowed: false },
+          { id: "dob", label: "Date of Birth", type: "date", ruleType: "soft", exceptionAllowed: true },
+          { id: "qualification", label: "Highest Qualification", type: "select", ruleType: "strict", exceptionAllowed: false, options: ["B.Tech","B.E.","B.Sc","BCA","M.Tech","M.Sc","MCA","MBA"] },
+          { id: "graduationYear", label: "Graduation Year", type: "number", ruleType: "soft", exceptionAllowed: true },
+          { id: "scoreType", label: "Score Type", type: "select", ruleType: "strict", exceptionAllowed: false, options: ["Percentage","CGPA"] },
+          { id: "score", label: "Percentage / CGPA", type: "number", ruleType: "soft", exceptionAllowed: true },
+          { id: "screeningScore", label: "Screening Test Score (out of 100)", type: "number", ruleType: "soft", exceptionAllowed: true },
+          { id: "interviewStatus", label: "Interview Status", type: "select", ruleType: "strict", exceptionAllowed: false, options: ["Cleared","Waitlisted","Rejected"] },
+          { id: "aadhaar", label: "Aadhaar Number", type: "text", ruleType: "strict", exceptionAllowed: false },
+          { id: "offerLetterSent", label: "Offer Letter Sent", type: "select", ruleType: "strict", exceptionAllowed: false, options: ["Yes","No"] }
+        ],
+        systemRules: { maxExceptionsBeforeFlag: 2 }
+      };
+
+      function generateForm() {
+        const container = document.getElementById('fieldsContainer');
+        
+        ADMIT_GUARD_CONFIG.fields.forEach(field => {
+          const group = document.createElement('div');
+          group.className = 'form-group';
+          group.id = `group-${field.id}`;
+
+          const label = document.createElement('label');
+          label.setAttribute('for', field.id);
+          label.textContent = field.label;
+          group.appendChild(label);
+
+          let input;
+          if (field.type === 'select') {
+            input = document.createElement('select');
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = `Select ${field.label}`;
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            input.appendChild(defaultOption);
+
+            field.options.forEach(opt => {
+              const option = document.createElement('option');
+              option.value = opt;
+              option.textContent = opt;
+              input.appendChild(option);
+            });
+          } else {
+            input = document.createElement('input');
+            input.type = field.type;
+          }
+
+          input.id = field.id;
+          input.name = field.id;
+          group.appendChild(input);
+
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.id = `error-${field.id}`;
+          group.appendChild(errorDiv);
+
+          if (field.ruleType === 'soft') {
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'exception-toggle';
+            toggle.id = `toggle-${field.id}`;
+            toggle.textContent = 'Grant Exception';
+            // Note: Requirement says "hidden" by default. 
+            // I've used CSS 'display: none' for .exception-toggle.
+            group.appendChild(toggle);
+          }
+
+          container.appendChild(group);
+        });
+      }
+
+      // Initialize form on load
+      document.addEventListener('DOMContentLoaded', generateForm);
+
+      // Prevent default submit for now as per "No validation logic yet"
+      document.getElementById('admitForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        console.log('Form submitted (no validation yet)');
+      });
+    </script>
+  </body>
+</html>
