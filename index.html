@@ -25,13 +25,23 @@
       }
 
       body.light-mode {
-        --bg-color: #f8fafc;
+        --bg: #f8fafc;
+        --bg2: #f1f5f9;
+        --bg3: #e2e8f0;
+        --card: #ffffff;
+        --border: rgba(0,0,0,0.08);
+        --text: #0f172a;
+        --text-muted: #64748b;
+        --text-dim: #475569;
+
+        /* Mapping to existing variables */
+        --bg-color: var(--bg);
         --bg-glow: rgba(124, 58, 237, 0.05);
-        --card-bg: #ffffff;
-        --input-bg: #f1f5f9;
-        --text-color: #0f172a;
-        --border-color: #e2e8f0;
-        --label-color: #64748b;
+        --card-bg: var(--card);
+        --input-bg: var(--bg2);
+        --text-color: var(--text);
+        --border-color: var(--border);
+        --label-color: var(--text-muted);
       }
 
       * {
@@ -55,14 +65,13 @@
 
       .header-bar {
         width: 100%;
-        height: 64px;
         background: rgba(17, 24, 39, 0.8);
         backdrop-filter: blur(12px);
         border-bottom: 1px solid var(--border-color);
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 0 2rem;
+        justify-content: space-between;
+        padding: 14px 32px;
         position: sticky;
         top: 0;
         z-index: 1000;
@@ -97,8 +106,11 @@
       }
 
       .header-right {
-        font-size: 0.85rem;
-        color: var(--label-color);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--text-muted);
         font-weight: 500;
       }
 
@@ -246,27 +258,27 @@
 
       /* Theme Toggle Styling */
       .theme-toggle {
-        position: fixed;
-        top: 1.5rem;
-        right: 1.5rem;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        color: var(--text-color);
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text-color);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.25s ease;
+        font-size: 16px;
+        padding: 0;
+        margin: 0;
+        line-height: 1;
         z-index: 100;
-        transition: all 0.2s;
       }
 
       .theme-toggle:hover {
-        transform: scale(1.1);
-        border-color: var(--accent-color);
+        background: rgba(124, 58, 237, 0.2);
+        border-color: rgba(124, 58, 237, 0.4);
       }
 
       /* Dashboard Styling */
@@ -712,6 +724,77 @@
         background-position: right 1rem center;
         background-size: 1.2rem;
       }
+
+      /* ── TABLET: 641px – 1024px ── */
+      @media (min-width: 641px) and (max-width: 1024px) {
+        main { padding: 0 20px; }
+        .page-title { font-size: 30px; }
+        .fields-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+        .card { padding: 24px; }
+      }
+
+      /* ── MOBILE: max 640px ── */
+      @media (max-width: 640px) {
+
+        /* Header */
+        header {
+          padding: 12px 16px;
+          position: relative;
+        }
+        .header-meta { font-size: 11px; }
+        .logo { font-size: 17px; }
+
+        /* Theme toggle stays top-right, no change needed */
+
+        /* Page title */
+        .page-title { font-size: 26px; margin-bottom: 4px; }
+        .page-subtitle { font-size: 13px; margin-bottom: 24px; }
+
+        /* Main layout */
+        main { padding: 0 14px; margin-top: 28px; }
+
+        /* Tabs — full width, equal spacing */
+        .tabs-wrapper {
+          width: 100%;
+          display: flex;
+        }
+        .tab-btn {
+          flex: 1;
+          text-align: center;
+          padding: 8px 6px;
+          font-size: 12px;
+        }
+
+        /* Form grid — single column */
+        .fields-grid {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+        .field-full { grid-column: 1; }
+
+        /* Card padding */
+        .card { padding: 16px 14px; }
+
+        /* Audit table — horizontal scroll */
+        .audit-table-wrapper {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .audit-table { min-width: 580px; font-size: 12px; }
+
+        /* Dashboard cards — stack vertically */
+        .dashboard-stats {
+          flex-direction: column;
+        }
+        .stat-card { width: 100%; }
+
+        /* Exception counter */
+        .exception-counter {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -722,13 +805,11 @@
       </div>
       <div class="header-right">
         IIT Gandhinagar — Admission System
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+          🌙
+        </button>
       </div>
     </nav>
-
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" style="top: 12px; right: 12px; width: 36px; height: 36px;">
-      <svg id="sunIcon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-      <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-    </button>
 
     <div class="container" id="mainContainer">
       <div class="page-title-section">
@@ -1303,14 +1384,12 @@
 
       function toggleTheme() {
         const body = document.body;
-        const sunIcon = document.getElementById('sunIcon');
-        const moonIcon = document.getElementById('moonIcon');
+        const btn = document.getElementById('themeToggle');
         
         body.classList.toggle('light-mode');
         const isLight = body.classList.contains('light-mode');
         
-        sunIcon.style.display = isLight ? 'block' : 'none';
-        moonIcon.style.display = isLight ? 'none' : 'block';
+        btn.textContent = isLight ? '☀️' : '🌙';
         
         localStorage.setItem('admitguard_theme', isLight ? 'light' : 'dark');
       }
